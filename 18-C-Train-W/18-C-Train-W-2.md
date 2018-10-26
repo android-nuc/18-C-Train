@@ -15,6 +15,8 @@
 + [`字符串`](#字符串)
   + [`初识字符串`](#初识字符串)
   + [`字符串的输入与输出`](#字符串的输入与输出)
+    + [`输出`](#输出)
+    + [`输入`](#输入)
   + [`指向字符串的指针`](#指向字符串的指针)
   + [`常见的字符串操作`](#常见的字符串操作)
     + [`赋值`](#赋值)
@@ -333,11 +335,171 @@ st1.next = &st2;
 构建3步骤
 
 + 构造一个结构类型，此结构类型必须包含至少一个成员指针，此指针要指向此结构类型，
++ 定义3个结构体类型的指针，按照用途可以命名为，p_head,p_rail,p_new
++ 动态生成新的结点，为各成员变量赋值，最后加到链表当中
+
+构造专用于链表的结构
+
+```c
+struct node
+{
+    short i;   数据域
+    char c;   ///数据域
+    struct node *next;  //指针域，用于指向下一个结点
+}
+```
+
+定义结构体指针
+
+```c
+struct node *p_head,*p_rail,*p_new ;
+```
+
+使用malloc() 动态申请储存空间作为新节点，声明形式：
+
+```c
+void malloc(unsigned int num_bytes);
+```
+
++ num_bytes声明的空间大小
++ 返回void类型的指针
++ 要注意的是，生命完要把空间释放掉，盗用的函数为 free();
+
+![train20.png](https://upload-images.jianshu.io/upload_images/9140378-e9fbe3bdd6db4850.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/540)
+
+接下来写一个动态创建链表的实例：
+
+首先构造结构体
+
+```c
+struct node {
+    short i;
+    char c;
+    struct node *next;
+};
+```
+
+构造一个含有3个结点的链表
+
+```c
+struct node node1 = {1,'A'};
+struct node node2 = {2,'B'};
+struct node node3 = {3,'C'};
+node1.next = &node2;
+node2.next = &node3;
+```
+
+<div align="center">
+
+![train21.png](https://upload-images.jianshu.io/upload_images/9140378-32814c518bae8414.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/540)
+
+</div>
+
+遍历链表输出数据
+
+```c
+struct node *p;
+p = &node1;
+for(int j = 0;j < 3;j ++)
+{
+    printf("node:%d %c",p->i,p->c);
+    p = p->next;
+}
+```
+
+动态生成新节点
+
+```c
+struct node *p_new;
+p_new = (struct node *)malloc(sizeof(struct node));
+p_new->i = 4;
+p_new->c = 'd';
+```
+
+添加到链表当中
+
+```c
+node3.next = p_new;
+```
 
 #### 链表操作
 
-+ 插入结点到链表
+插入结点到链表
+
++ 插入结点到第一个数据结点前
+
+<div align="center">
+
+![train22.png](https://upload-images.jianshu.io/upload_images/9140378-884b75f47c63a109.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/740)
+
+</div>
+
+```c
+struct node p_new = (struct node *)malloc(sizeof(struct node));  //创建新结点，并为其开辟空间
+scanf("%d%c",&(p_new->i),&(p_new->c));  //录入结点数据
+//插入节点
+p_new->next = p_head-next;
+p_head->next = p_new;
+```
+
++ 插入结点到链表中间
+
+<div align="center">
+
+![train23.png](https://upload-images.jianshu.io/upload_images/9140378-320eb2dd5952ee8f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/740)
+
+</div>
+
+```c
+struct node p_new = (struct node *)malloc(sizeof(struct node));  //创建新结点，并为其开辟空间
+p_new->i = 2;
+p_new->c = 'B';
+
+struct node *p_front = p_head->next;
+p_new->next = p_front->next;
+p_front->next = p_new;
+```
+
++ 插入节点到链表末尾
+
+![train24.png](https://upload-images.jianshu.io/upload_images/9140378-b772cb8890126923.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+```c
+while(1)
+{
+    if(p-next == NULL)
+    {
+        p_rail = p;
+        break;
+    }
+    p = p->next;
+}
+p_rail->next = p_new;
+p_tail = p_new;
+```
+
 + 删除链表中的结点
+
+<div align="center">
+
+![train25.png](https://upload-images.jianshu.io/upload_images/9140378-3582fbb7b736eb09.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/440)
+
+</div>
+
+```c
+void del_list(struct node *p_head,int pos)
+{
+    strct node *p_front,*p_del;
+    p_front = p_head;
+    for(int i = 0;i <= pos - 1;i ++)
+    {
+        p_front = p_front->next;
+    }
+    p_del = p_front->next;
+    p_front->next = p_del->next;
+    free(p_del);
+}
+```
 
 ## 字符串
 
@@ -455,6 +617,18 @@ puts(p);
 
 ### 常见的字符串操作
 
++ strcpy(p, p1) 复制字符串
++ strncpy(p, p1, n) 复制指定长度字符串
++ strcat(p, p1) 附加字符串
++ strncat(p, p1, n) 附加指定长度字符串
++ strlen(p) 取字符串长度
++ strcmp(p, p1) 比较字符串
++ strcasecmp忽略大小写比较字符串
++ strncmp(p, p1, n) 比较指定长度字符串
++ strchr(p, c) 在字符串中查找指定字符
++ strrchr(p, c) 在字符串中反向查找
++ strstr(p, p1) 查找字符串
+
 #### 赋值
 
 何为赋值？
@@ -485,20 +659,72 @@ char * strcat(const *char str1,const *char str2);
 char *strncat(const *char str1,const *char str2,int size);
 ```
 
+错误的加法运算
+
+```c
+char *p1 = "super";
+char *p2 = "market";
+char *p3 = p1 + p2;  //错误的加法
+```
+
+```c
+char arr[30] = {0};
+char *p3 = arr;
+p3 = strcat(p3,p1);
+p3 = strcat(p3,p2);
+p3 = strncat(p3,p1,1);  //将p1所指向的字符的第一个字符加到p3所指字符串的末尾
+// p3 = supermarkets
+```
+
 #### 修改
+
+```c
+cahr arr[] = "Nes!";
+cahr *p = arr;
+*p = 'Y';
+```
+
+指针p指向了arr字符串的字符串，借助 p 可以任意修改字符串中的任意字符,但是借助指针修改一个字符还比较容易，批量的话就需要 库函数 strset
+
+```c
+char *strset(char *s,char c);  //将字符串s中的字符全部设成字符 c
+char *strnset(char *s,char c,int n); //将s指向的字符串的前n个字符都设成c
+```
+
+```c
+char p1[] = "Are you ok";
+strset(p1,'a');
+// p1 aaaaaaaaaa
+
+strset(p2,'b',2);
+
+//p1 bbaaaaaaaa
+```
 
 #### 比较
 
 字符串比较函数
 
-按照ascii码来进行比较，并由函数返回值进行判断 
+错误的比较方式
+
+```c
+char arr[] = "What";
+char arr2[] = "That";
+arr1 = arr2;  //错误的比较方式
+```
+
+按照ascii码来进行比较，并由函数返回值进行判断
 返回0,字符串1等于字符串2,
 大于0,字符串1大于字符串2,
 小于0,字符串1小于字符串2,
 
 ```c
-int strcmp(const char * str1,const char *str2);
-int strncmp(const char*str1,const char *str2,int size);
+int strcmp(const char *str1,const char *str2);
+int strncmp(const char *str1,const char *str2,int size);
+
+char buf1[] = "aaa";
+char buf2 = "bbb";
+int ptr = strcmp(buf2,buf1);//ptr < 0
 ```
 
 ## 文件
