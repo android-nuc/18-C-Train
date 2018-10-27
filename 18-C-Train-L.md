@@ -1,4 +1,5 @@
 > 本次培训采用C99标准
+
 # Hello World
 - ####  你好，世界！
 ``` C
@@ -351,13 +352,457 @@ int main()
 ```
 
 由此可作为输入时的循环条件
-```
+``` C
 while (~scanf("%d %d",&n,&m)) 等效于 while (scanf("%d %d",&n,&m) != EOF)
 ```
 
 
+# 分支语句
+- #### if
+> **形式：**
+> ``` C
+> if ( expression2 )
+> 	statement1
+> else if ( expression2 )
+> 	statement2
+> else
+> 	statement3
+> ```
+> 如果expression1为真，执行statement1部分；如果expression2为真，执行statement2部分；否则，执行statement3部分
+
+- 在写条件时，注意优先级。例如下面错误的判断是否为字母
+``` C
+if(ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z')
+{
+	printf("is alphabet")
+}
+```
+
+- #### 三元运算符：? :
+> 条件运算符需要3个运算对象，每个运算对象都是一个表达式。
+> *expression1* ? *expression2* : *expression3*
+> 如果*expression1*为真，整个条件表达式的值是*expression2*的值；否则，是*expression3*的值。
+
+它可以与`if else`等效，例如
+``` C
+x = (y < 0) ? -y : y; 
+
+// 等效于
+if (y < 0)
+	x = -y;
+else
+	x = y;
+```
+
+- #### 多重选择：switch语句
+> **形式：**
+> ``` C
+> switch( expression ) 
+> {
+> 	case label1: statement1 // 使用break跳出switch
+> 	case label2: statement2 
+>	default: statement3
+> }
+> ```
+> 可以有多个标签语句，default语句可选。
+> **注解：**
+> 程序根据expression的值跳转至相应的case标签处，然后，执行剩下的所有语句，除非执行到break语句进行重定向。expression和case标签都必须是整数值（包括char类型），标签必须是常量或完全由常量组成的表达式，如果没有case标签与expression的值匹配，控制则转至标有default的语句（如果有的话）；否则，将转至执行紧跟在wwitch语句后面的语句。
+
+- EX：统计一段话中元音字母个数。
+``` C
+#include<stdio.h>
+
+int main()
+{
+	int count = 0;
+	char ch;
+	while((ch = getchar()) != '\n')
+	{
+		switch(ch)
+		{
+			case 'a':
+			case 'A':
+				count++;
+				break;
+			case 'e':
+			case 'E':
+				count++;
+				break;
+			case 'i':
+			case 'I':
+				count++;
+				break;
+			case 'o':
+			case 'O':
+				count++;
+				break;
+			case 'u':
+			case 'U':
+				count++;
+				break;
+		}
+	}
+	printf("count: %d", count);
+
+	return 0;
+}
+```
+
 
 # 循环语句
 
-# 分支语句
+### 入口条件循环
+顾名思义，入口条件循环就是在循环的每次迭代之前检查测试条件，所以它有可能根本不执行循环体中的内容。
+- #### while循环
+> **形式:**
+>  ``` C
+>  while( expression )
+> 		statement
+>  ```
+> 在*expression*部分为假之前，重复执行*statement*部分。
+
+循环输入的例子：
+``` C
+#include<stdio.h>
+
+int main()
+{
+	char ch;
+	while(scanf("%c", &ch) != EOF)
+	{
+		if(ch >= '0' &&ch <= '9')
+			printf("%c", ch);
+	}
+
+	return 0;
+}
+```
+- **何为真假？**
+在C语言中这个很好判断，不为0的数就是`真`，即-1,-1000,1,100都为真。只有0为`假`。<br>布尔型的`True == 1`、`False == 0`。
+	- EX.1：若成功输入，预测下面代码执行结果。
+``` C
+#include<stdio.h>
+
+int main()
+{
+	int num, status;
+	int sum = 0;
+
+	status = scanf("%d", &num);
+
+	while(status = 1)
+	{
+		sum += num;
+		if(sum >= 10)
+			status = 0;
+	}
+	printf("%d", sum);
+
+	return 0;
+}
+```
+出现了死循环，`while(status = 1)`实际上相当于`while(1)`，此时入口条件永为真。<br>
+这种错误，程序在编译时，编译器一般不会报错（现代编译器会发出警告），为避免出现这种误用情况，经验丰富的程序员一般会把数写在等号左边，这样如果出现误写，在编译时会报错。
+``` C
+1 = status	// 语法错误
+1 == status	// 返回真假
+```
+
+- **空语句**
+在C语言中，单独的分号表示空语句。有时程序员会故意使用带空语句的while语句，例如，假设你想跳过输入到第1个非空白字符或数字，可以这样写。
+``` C
+while(scanf("%d", &num) == 1)
+	; 			// 跳过整数输入
+```
+防止误用空语句。以下是常见的几种误用，大括号中的语句仅执行了一次
+``` C	
+	int i = 0;
+	while(i > 5);
+	{
+		i++;
+		printf("%d", i);
+	} /* 输出：1*/
+
+
+	int i;
+	for(i = 0; i < 5; i++);
+	{
+		printf("%d", i);
+	} /* 输出：5*/
+
+
+	int i = 5;
+	if(i > 999);
+	{
+		printf("%d", i);
+	} /* 输出：5*/
+```
+
+- #### for循环
+for循环把初始化、测试和更新三个行为组合在了一处。
+> **形式：**
+> ``` C
+> for ( initialize; test; update )
+> 	statement
+> ```
+> 在*test*为假或0之前，重复执行*statement*。
+> **注解：**
+> for语句使用3个表达式控制循环过程，分别用分好评隔开。initialize表达式在执行for语句之前只执行一次；然后对test表达式求值，如果表达式为真（或非零），执行循环一次；接着对update表达式求值，并再次检查test表达式。for语句是一种入口条件循环，即在执行循环之前就决定了是否执行循环。因此，for循环可能一次都不执行，statement部分可以是一条简单语句或复合语句。
+
+- 输出1到200的奇数，十个为一行
+``` C
+#include<stdio.h>
+
+int main()
+{
+	int i;
+	for (i = 1; i <= 200; i+=2)
+	{
+		printf("%d", i);
+		printf("%c", (i + 1) % 20 ? '\t': '\n' );
+	}
+	
+	return 0;
+}
+```
+
+- #### 逗号运算符
+> 逗号运算符把两个表达式连接成一个表达式，并保证最左边的表达式最先求值，逗号运算符通常在for循环头的表达式中用于包含更多的信息。整个逗号表达式的值是逗号右侧表达式的值。
+
+上个例子还可以这样写。
+``` C
+#include<stdio.h>
+
+int main()
+{
+	int i, k;
+	for (i = 1, k = 1; i <= 200; i+=2, k++)
+	{
+		printf("%d", i);
+		if(k % 10 == 0)
+			printf("\n");
+		else
+			printf("\t");
+	}
+
+	return 0;
+}
+```
+- 防止误用逗号运算符<br>
+举个例子，假如你正在给一个表示房价的变量赋值，它在书上表示的是`$295,500`，然后你在输入的时候，不小心把逗号也输入进去了。
+``` C
+houseprice = 259,500;
+```
+结果是houseprice的值被赋为了500。这不是语法错误，C编译器会将其解释为一个逗号表达式。以逗号为分隔，`500`成了一条语句，由于它位于表达式的最右侧，所有就是这个表达式的值。
+
+- #### while or for
+这两个循环可以做到互相等价，例如：
+``` C
+for(; test ; ){}
+
+/* 等效于 */
+while (test){}
+```
+``` C
+初始化;
+while( 测试 )
+{
+	其他语句
+	更新语句
+}
+
+/* 等效于 */
+for( 初始化; 测试 ; 更新 )
+	其他语句
+
+```
+一般而言，当循环涉及初始化和更新变量时，用for循环比较合适，而在其他情况下用while循环更好。
+
+### 出口条件循环：do while
+出口条件循环，即在循环的每次迭代之后检查测试条件，这保证了至少执行循环体中的内容一次。
+> **形式：**
+> ```C
+> do
+> 	statement
+> while( expression );
+> ```
+> 在*test*为假或0之前，重复执行statement部分
+
+- 验证密码
+``` C
+#include<stdio.h>
+#define PASSWORD 123456
+
+int verify_password(int num)
+{
+	if(num == PASSWORD)
+		return 0;
+	else
+		return 1;
+}
+
+int main()
+{
+	int password;
+	do
+	{
+		printf("Please enter password:");
+		scanf("%d", &password);
+	}
+	while(verify_password(password));
+	printf("success!");
+
+	return 0;
+}
+```
+
+- #### 跳出循环
+	- `continue`：**结束本次**循环，进行下一次循环
+	- `break`：**终止**循环不再进行
+
+
+### 函数
+代码示例：
+``` C
+#include<stdio.h>
+
+int max(int, int);	// 函数原型
+
+int main()
+{
+	int a, b, num;
+	scanf("%d %d", &a, &b);
+	num = max(a, b);	// 函数调用
+	printf("%d", num);
+
+	return 0;
+}
+
+int max(int a, int b)	// 函数定义
+{
+	return a > b ? a : b;	// 返回int类型的值
+}
+```
+- 什么是函数签名？
+函数的返回类型和形参列表构成了函数签名。因此函数签名指定了传入函数的值的类型和函数值的类型。
+
+- 函数原型的作用
+之所以使用函数原型，是为了让编译器在第1此执行到该函数之前就知道如何使用它。<br>既然是告知编译器如何使用它，那么肯定有等效的方法能省略它。例如上面的代码
+``` C	
+int max(int a, int b)	// 函数定义
+{
+	return a > b ? a : b;	// 返回int类型的值
+}
+
+int main()
+{
+	int a, b, num;
+	scanf("%d %d", &a, &b);
+	num = max(a, b);	// 函数调用
+	printf("%d", num);
+
+	return 0;
+}
+```
+只需要在调用子函数之前，让编译器知道它的存在即可。
+
+- 同名函数
+在支持ANSI C的编译器下，可以使用相同的名称命名多个函数，只要它的函数签名不同即可。注意在g++编译器下，不允许这样的操作。
+举个例子：
+``` C
+#include<stdio.h>
+
+int max(int, int);	// 函数原型
+char max(char, char);
+
+int main()
+{
+	int a, b;
+	char ch1, ch2;
+
+	scanf("%d %d", &a, &b);
+	printf("max: %d\n\n", max(a, b));
+
+	getchar(); // 读取换行
+	scanf("%c %c", &ch1, &ch2);
+	printf("char is %c and %c\n", ch1, ch2);
+	printf("max: %c\n", max(ch1, ch2));
+
+	return 0;
+}
+
+int max(int a, int b)	// 函数定义
+{
+	return a > b ? a : b;	// 返回int类型的值
+}
+
+char max(char a, char b)
+{
+	return a > b ? a : b;
+}
+```
+- #### 了解：与指针相关的运算符
+> **地址运算符：&**
+> **注解**：后跟一个变量名时，&给出该变量的地址
+> **示例**：&house表示变量house的地址。
+
+> **地址运算符：***
+> **注解**：后跟一个指针名或地址时，*给出储存在指正指向地址上的值。
+> **示例**：
+> ``` C
+> house = 22;
+> ptr = &house;	// 指向house指针
+> value = *ptr; // 把ptr指向的地址上的值赋给value
+> ```
+
+- #### 引用
+函数的形参如果是地址，可以称为引用变量。此时修改形参的值，将会直接影响实参的值。
+举个例子
+``` C
+#include<stdio.h>
+
+void find_max(int a, int b, int &max)
+{
+	max = a > b ? a : b;
+}
+
+int main()
+{
+	int a, b, max;
+	scanf("%d %d", &a, &b);
+	find_max(a, b, max);
+	printf("max: %d\n", max);
+
+	return 0;
+}
+```
+在子函数中给`max`变量赋值，也会直接影响main函数中的max的值。
+
+- #### 返回指针
+``` C
+#include<stdio.h>
+
+char *input()
+{
+	char str[20];
+	scanf("%s", str);
+	return &str[0];
+}
+
+int main()
+{
+	char *str = input();
+	printf("%s", str);
+
+	return 0;
+}
+```
+- 思考：如果一个子函数，有多个同类型的值要返回怎么办呢？
+
+<br>
+**以上是上午内容**
+<div STYLE="page-break-after: always;"></div> 
+
+
+
 
