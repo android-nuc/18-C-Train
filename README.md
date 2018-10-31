@@ -2276,6 +2276,7 @@ FILE *fopen( const char * filename, const char * mode );
 ```
 
 在这上面的函数原型里面，filename 是字符串，用来命名文件，访问模式 mode 的值可以是下列值中的一个：
+
 |||
 |:--|:--|
 |模式|描述|
@@ -2547,8 +2548,3 @@ int fr(eadconst void *buffer,int size,int count,FILE *stream);
 ```c
 int count = fread(info_st,sizeof(struct info),3,fp);  //从文件读取数据
 ```
-
-
-
-
-
