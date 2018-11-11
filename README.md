@@ -2350,8 +2350,7 @@ int fputc(char c,FILE *stream);
 ```c
 char ch; //定义一个字符串
 int i = 0;
-ch = getchar();
-while(ch != '\n');
+while((ch = getchar()) != '\n')
 {
     i = fputc(ch,fp);  // 以字符为单位，写入到text.txt文件
     if(i == -1)
@@ -2359,7 +2358,6 @@ while(ch != '\n');
         puts("字符写入失败！");
         exit(0);
     }
-    ch = getchar();
 }
 ```
 
