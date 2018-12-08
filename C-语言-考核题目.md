@@ -5,7 +5,7 @@
 
 ![wotou.jpg](https://upload-images.jianshu.io/upload_images/9140378-47e0b36c94cc844d.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/440)
 
-### 2.通过指针将一个链表倒序
+### 2.通过指针将一个单链表倒序
 
 + 创建新链表
 + 在已有链表的基础上将原链表内容倒序
